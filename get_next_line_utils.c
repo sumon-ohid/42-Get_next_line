@@ -3,134 +3,88 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sumon <sumon@student.42.fr>                +#+  +:+       +#+        */
+/*   By: msumon <msumon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/16 08:21:56 by sumon             #+#    #+#             */
-/*   Updated: 2023/10/16 11:55:48 by sumon            ###   ########.fr       */
+/*   Created: 2023/10/16 14:48:23 by msumon            #+#    #+#             */
+/*   Updated: 2023/10/17 14:06:50 by msumon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_free(char *line)
+int	ft_strlen(char *str)
 {
-	if (line)
-	{
-		free(line);
-		line = NULL;
-	}
-	return (NULL);
+	int	count;
+
+	count = 0;
+	if (!str)
+		return (0);
+	while (str[count] != '\0')
+		count++;
+	return (count);
 }
 
-int	ft_strchr(char *line, char c)
+char	*ft_strdup(char *line)
 {
-	int	i;
+	char	*str;
+	int		len;
+	int		i;
 
-	if (!line)
-		return (-1);
 	i = 0;
-	while (line[i] != '\0')
+	len = ft_strlen(line) + 1;
+	str = (char *)malloc(len * sizeof(*str));
+	if (!str)
+		return (NULL);
+	while (line[i])
 	{
-		if (line[i] == c)
-			return (i);
+		str[i] = line[i];
 		i++;
 	}
-	if (c == '\0')
-		return (i);
-	return (-1);
+	str[i] = '\0';
+	return (str);
+}
+
+char	*ft_strchr(char *line, char c)
+{
+	char	*str;
+	int		i;
+
+	i = 0;
+	if (!line)
+		return (NULL);
+	if (c == 0)
+		return (&line[ft_strlen(line)]);
+	str = line;
+	while (str[i] != c && str[i] != '\0')
+		i++;
+	if (str[i] == c)
+		return (&str[i]);
+	if (!c && str[i] == '\0')
+		return (&str[i]);
+	return (NULL);
 }
 
 char	*ft_strjoin(char *line, char *buffer)
 {
-	char	*temp;
+	char	*str;
 	int		i;
 	int		j;
 
-	temp = (char *)malloc(sizeof(char) * (ft_strlen(line) + ft_strlen(buffer)
-				+ 1));
-	if (!temp)
-		return (NULL);
-    if (!line)
-        return (ft_strjoin("", ""));
 	i = 0;
-	while (line[i] != '\0')
-	{
-		temp[i] = line[i];
-		i++;
-	}
 	j = 0;
-	while (buffer[j] != '\0')
-	{
-		temp[i + j] = buffer[j];
-		j++;
-	}
-	temp[i + j] = '\0';
-	return (temp);
-}
-
-int	ft_strlen(char *line)
-{
-	int	i;
-
 	if (!line)
-		return (0);
+		return (ft_strdup(buffer));
+	str = (char *)malloc(sizeof(char) * (ft_strlen(line) + ft_strlen(buffer)
+				+ 1));
+	if (!str)
+		return (NULL);
+	while (line[i])
+		str[j++] = line[i++];
 	i = 0;
-	while (line[i] != '\0')
-		i++;
-	return (i);
-}
-
-char	*get_line(char *line)
-{
-	int		i;
-	char	*temp;
-	char	*remain_line;
-
-	i = 0;
-    line = ft_strjoin(line, "");
-    if (!line)
-        return (NULL);
-	while (line[i] != '\n' && line[i] != '\0')
-		i++;
-	if (line[i] == '\n')
-	{
-		temp = (char *)malloc(sizeof(char) * (i + 1));
-		if (!temp)
-			return (ft_free(line));
-		remain_line = (char *)malloc(sizeof(char) * (ft_strlen(line) - i));
-		if (!remain_line)
-		{
-			free(temp);
-			free(line);
-			return (NULL);
-		}
-		i = 0;
-		while (line[i] != '\n')
-		{
-			temp[i] = line[i];
-			i++;
-		}
-		temp[i] = '\0';
-		i++;
-		remain_line[0] = '\0';
-		remain_line = ft_strjoin(remain_line, &line[i]);
-		free(line);
-		line = remain_line;
-		return (temp);
-	}
-	else
-	{
-		temp = (char *)malloc(sizeof(char) * (i + 1));
-		if (!temp)
-			return (ft_free(line));
-		i = 0;
-		while (line[i] != '\0')
-		{
-			temp[i] = line[i];
-			i++;
-		}
-		temp[i] = '\0';
-		free(line);
-		return (temp);
-	}
+	while (buffer[i])
+		str[j++] = buffer[i++];
+	str[j] = '\0';
+	free(line);
+	line = NULL;
+	return (str);
 }
