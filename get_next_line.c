@@ -3,113 +3,113 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msumon <msumon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sumon <sumon@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/16 12:37:31 by msumon            #+#    #+#             */
-/*   Updated: 2023/10/17 14:22:58 by msumon           ###   ########.fr       */
+/*   Created: 2023/10/17 17:57:24 by sumon             #+#    #+#             */
+/*   Updated: 2023/10/18 09:26:39 by sumon            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_line_until_newline(char *line)
+size_t	ft_strlen(char *s)
+{
+	size_t	len;
+
+	len = 0;
+	if (!s)
+		return (0);
+	while (s[len])
+		len++;
+	if (s[len] == '\n')
+		return (len + 1);
+	return (len);
+}
+
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*str;
-	int		i;
+	size_t	i;
+	size_t	j;
 
-	i = 0;
-	if (!line)
-		return (NULL);
-	while (line[i] && line[i] != '\n')
-		i++;
-	str = (char *)malloc(sizeof(char) * (i + 1));
-	if (!str)
+	str = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!(str))
 		return (NULL);
 	i = 0;
-	while (line[i] && line[i] != '\n')
+	j = 0;
+	while (s1 && s1[i])
+		str[j++] = s1[i++];
+	i = 0;
+	while (s2 && s2[i])
 	{
-		str[i] = line[i];
-		i++;
+		str[j++] = s2[i];
+		if (s2[i++] == '\n')
+			break ;
 	}
-	str[i] = '\0';
+	str[j] = '\0';
+	free(s1);
 	return (str);
 }
 
-char	*get_the_rest_after_newline(char *line)
+size_t	clean_line(char *buffer)
 {
-	char	*str;
-	int		i;
-	int		j;
+	size_t	i;
+	size_t	j;
+	size_t	result;
 
 	i = 0;
 	j = 0;
-	if (!line)
-		return (NULL);
-	while (line[i] != '\0' && line[i] != '\n')
-		i++;
-	if (!line[i])
+	result = 0;
+	while (buffer[i])
 	{
-		free(line);
-		return (NULL);
+		if (result)
+			buffer[j++] = buffer[i];
+		if (buffer[i] == '\n')
+			result = 1;
+		buffer[i] = 0;
+		i++;
 	}
-	str = (char *)malloc(sizeof(char) * (ft_strlen(line) - i + 1));
-	if (!str)
-		return (NULL);
-	i++;
-	while (line[i])
-		str[j++] = line[i++];
-	str[j] = '\0';
-	free(line);
-	return (str);
+	return (result);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*line;
-	char		buf[BUFFER_SIZE + 1];
-	char		*result;
-	int			b;
+	static char	buffer[BUFFER_SIZE + 1];
+	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	b = 1;
-	while (!ft_strchr(line, '\n') && b > 0)
+	line = NULL;
+	while (buffer[0] || read(fd, buffer, BUFFER_SIZE) > 0)
 	{
-		b = read(fd, buf, BUFFER_SIZE);
-		if (b == -1)
-			return (free(line), NULL);
-		if (b == 0)
+		line = ft_strjoin(line, buffer);
+		if (clean_line(buffer) == 1)
 			break ;
-		buf[b] = '\0';
-		line = ft_strjoin(line, buf);
+		if (read(fd, buffer, BUFFER_SIZE) < 0)
+		{
+			free(line);
+			return (NULL);
+		}
 	}
-	if (b == 0 && !line)
-		return (NULL);
-	result = get_line_until_newline(line);
-	line = get_the_rest_after_newline(line);
-	return (result);
+	return (line);
 }
 
-int	main(void)
-{
-	int		fd;
-	char	*line;
-	int		i;
-
-	i = 0;
-	fd = open("file.txt", O_RDONLY);
-	if (fd == -1)
-	{
-		perror("Error opening file");
-		return (1);
-	}
-	while (i < 6)
-	{
-		line = get_next_line(fd);
-		printf("line %d = {%s}\n", i, line);
-		free(line);
-		i++;
-	}
-	close(fd);
-	return (0);
-}
+// int	main(void)
+// {
+// 	int		fd;
+// 	char	*line;
+// 	int		i;
+	
+// 	i = 0;
+// 	fd = open("test.txt", O_RDONLY);
+// 	if (fd < 0)
+// 		printf("Error\n");
+// 	while (i++ < 15)
+// 	{
+// 		line = get_next_line(fd);
+// 		printf("%s", line);
+// 		free(line);
+// 	}
+// 	close(fd);
+// 	return (0);
+// }
