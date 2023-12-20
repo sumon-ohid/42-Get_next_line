@@ -6,7 +6,7 @@
 /*   By: sumon <sumon@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 17:57:24 by sumon             #+#    #+#             */
-/*   Updated: 2023/10/18 09:26:39 by sumon            ###   ########.fr       */
+/*   Updated: 2023/12/20 23:42:20 by sumon            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	return (str);
 }
 
-size_t	clean_line(char *buffer)
+size_t	ft_line_check(char *buffer)
 {
 	size_t	i;
 	size_t	j;
@@ -83,7 +83,7 @@ char	*get_next_line(int fd)
 	while (buffer[0] || read(fd, buffer, BUFFER_SIZE) > 0)
 	{
 		line = ft_strjoin(line, buffer);
-		if (clean_line(buffer) == 1)
+		if (ft_line_check(buffer) == 1)
 			break ;
 		if (read(fd, buffer, BUFFER_SIZE) < 0)
 		{
